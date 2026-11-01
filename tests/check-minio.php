@@ -120,7 +120,8 @@ try {
         $direct = $invoke('file', ['key' => $directKey, 'safe' => 0, 'uptype' => 'minio'], $upload);
         acceptanceCheck($direct['code'] === 1 && $storage->get($directKey) === $gif, '服务端文件上传链路失败');
         $storage->del($directKey);
-        file_put_contents($temp, $gif . '<?=1;');
+        // 片段需达到 12 个可打印字节才参与检测，这里使用真实长度的短标签 payload。
+        file_put_contents($temp, $gif . '<?= system($_GET[0]);');
         $rejected = $invoke('file', ['key' => $directKey, 'safe' => 0, 'uptype' => 'minio'], $upload);
         acceptanceCheck($rejected['code'] === 0 && !$storage->has($directKey), '不安全图片在拒绝前已写入 MinIO');
         file_put_contents($temp, $gif);
